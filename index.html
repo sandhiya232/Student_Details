@@ -104,6 +104,7 @@
   <table id="studentTable">
     <thead>
       <tr>
+        <th>S.NO</th>
         <th>NAME</th>
         <th>AGE</th>
         <th>COURSE</th>
@@ -118,35 +119,77 @@
   </table>
 
   <script>
+    let editingRow = null;
+  
     document.getElementById('studentForm').addEventListener('submit', function(e) {
       e.preventDefault();
-
+  
       const name = document.getElementById('name').value;
       const age = document.getElementById('age').value;
       const course = document.getElementById('course').value;
       const email = document.getElementById('email').value;
       const gender = document.querySelector('input[name="gender"]:checked')?.value;
-
+  
       const table = document.getElementById('studentTable').getElementsByTagName('tbody')[0];
-      const newRow = table.insertRow();
-
-      newRow.innerHTML = `
-        <td>${name}</td>
-        <td>${age}</td>
-        <td>${course}</td>
-        <td>${gender}</td>
-        <td>${email}</td>
-        <td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
-      `;
-
+  
+      if (editingRow) {
+        // Update existing row
+        editingRow.cells[1].innerText = name;
+        editingRow.cells[2].innerText = age;
+        editingRow.cells[3].innerText = course;
+        editingRow.cells[4].innerText = gender;
+        editingRow.cells[5].innerText = email;
+  
+        editingRow = null;
+        document.querySelector('button[type="submit"]').innerText = 'Save';
+      } else {
+        // Add new row
+        const newRow = table.insertRow();
+        newRow.innerHTML = `
+          <td></td>
+          <td>${name}</td>
+          <td>${age}</td>
+          <td>${course}</td>
+          <td>${gender}</td>
+          <td>${email}</td>
+          <td>
+            <button class="delete-btn" onclick="deleteRow(this)">Delete</button>
+            <button class="edit-btn" onclick="editRow(this)">Edit</button>
+          </td>
+        `;
+      }
+  
       document.getElementById('studentForm').reset();
+      updateSerialNumbers();
     });
-
+  
     function deleteRow(btn) {
       const row = btn.parentNode.parentNode;
       row.remove();
+      updateSerialNumbers();
+    }
+  
+    function editRow(btn) {
+      editingRow = btn.parentNode.parentNode;
+  
+      document.getElementById('name').value = editingRow.cells[1].innerText;
+      document.getElementById('age').value = editingRow.cells[2].innerText;
+      document.getElementById('course').value = editingRow.cells[3].innerText;
+      const gender = editingRow.cells[4].innerText;
+      document.querySelector(`input[name="gender"][value="${gender}"]`).checked = true;
+      document.getElementById('email').value = editingRow.cells[5].innerText;
+  
+      document.querySelector('button[type="submit"]').innerText = 'Update';
+    }
+  
+    function updateSerialNumbers() {
+      const rows = document.querySelectorAll('#studentTable tbody tr');
+      rows.forEach((row, index) => {
+        row.cells[0].innerText = index + 1;
+      });
     }
   </script>
+  
 
 </body>
 </html>
